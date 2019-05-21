@@ -1,0 +1,23 @@
+{
+  "name": "antibot-proxy",
+  "version": "0.0.1",
+  "description": "Proxy designed to combat against basic bots that aren't a full browser.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unixfox/antibot-proxy.git"
+  },
+  "author": "unixfox",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/unixfox/antibot-proxy/issues"
+  },
+  "homepage": "https://github.com/unixfox/antibot-proxy#readme",
+  "dependencies": {
+    "express": "^4.17.0",
+    "http-proxy-middleware": "^0.19.1"
+  }
+}
