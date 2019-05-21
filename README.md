@@ -9,6 +9,7 @@ The algorithm is based on the fact that every browser will load all the external
 - `MAX_RETRY`: number of times before adding the client IP address to the jail list
 - `JAIL_PATH`: path of the IP banned
 - `ENDPOINT_NAME`: a static name that the client will have to reach after each request (example: `searx.css` for `http://example.com/searx.css`).
+- `TIMEOUT_LOAD`: The time before the program consider that the client failed to reach the endpoint.
 2. Add this HTML code into your website:
 ````HTML
 <link rel="stylesheet" type="text/css" href="/$ENDPOINT_NAME">

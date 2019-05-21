@@ -9,7 +9,7 @@ let failedCounter = new Object();
 const targetToProxy = process.env.TARGET;
 const countBeforeBan = process.env.MAX_RETRY - 1;
 const jailPath = process.env.JAIL_PATH;
-const timeoutLoadEndpoint = process.env.TIMEOUT_LOAD;
+const timeoutLoadEndpoint = parseInt(process.env.TIMEOUT_LOAD);
 
 function addFailedCounter(IP) {
     if (!failedCounter[IP])
