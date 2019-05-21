@@ -1,5 +1,5 @@
 # Description
-:warning: This program is still experimental and (badly written) so there are probably be some bugs and vulnerabilities in the bot detection system. :warning:
+:warning: This program is still experimental and (badly written) so there are probably some bugs and vulnerabilities in the bot detection system. :warning:
 
 The algorithm is based on the fact that every browser will load all the external CSS that you included in your HTML page so in case of a stupid/basic bot it won't simply load that external CSS file because it does not process the HTML code.
 
