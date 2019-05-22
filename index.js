@@ -44,7 +44,8 @@ const options = proxy({
                     addFailedCounter(IP);
                 }
             }
-    }
+    },
+    logLevel: 'silent'
 });
 
 app.get("/" + process.env.ENDPOINT_NAME, function (req, res) {
