@@ -1,3 +1,4 @@
+![GitHub stars](https://img.shields.io/github/stars/unixfox/antibot-proxy.svg?style=social) [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/unixfox/antibot-proxy.svg)](https://hub.docker.com/r/unixfox/antibot-proxy) [![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/unixfox/antibot-proxy.svg)](https://hub.docker.com/r/unixfox/antibot-proxy) ![GitHub package.json version](https://img.shields.io/github/package-json/v/unixfox/antibot-proxy.svg)
 # Description
 :warning: This program is still experimental and (badly written) so there are probably some bugs and vulnerabilities in the bot detection system. :warning:
 
