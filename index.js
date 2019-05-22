@@ -10,6 +10,7 @@ const targetToProxy = process.env.TARGET;
 const countBeforeBan = process.env.MAX_RETRY - 1;
 const jailPath = process.env.JAIL_PATH;
 const timeoutLoadEndpoint = parseInt(process.env.TIMEOUT_LOAD);
+const whitelist = process.env.WHITELIST;
 
 function addFailedCounter(IP) {
     if (!failedCounter[IP])
@@ -29,7 +30,7 @@ const options = proxy({
     target: targetToProxy,
     onProxyRes(proxyRes, req, res) {
         let IP = req.headers["x-real-ip"];
-        if (proxyRes.headers['content-type'])
+        if (proxyRes.headers['content-type'] && !whitelist.includes(IP))
             if (proxyRes.headers['content-type'].includes("text/html")) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {
