@@ -2,6 +2,7 @@ const proxy = require('http-proxy-middleware');
 const express = require('express');
 const fs = require('fs');
 const app = express();
+require('better-logging')(console);
 
 let timeoutObject = new Object();
 let failedCounter = new Object();
@@ -20,7 +21,7 @@ function addFailedCounter(IP) {
         clearTimeout(timeoutObject[IP]);
         delete failedCounter[IP];
         delete timeoutObject[IP];
-        console.log("[BLOCK] IP: " + IP + " - Bot detected: adding to the jail list!");
+        console.warn(IP + " - Bot detected: adding to the jail list!");
     }
     else if (failedCounter[IP] < countBeforeBan)
         failedCounter[IP] += 1;
@@ -35,12 +36,12 @@ const options = proxy({
             if (proxyRes.headers['content-type'].includes("text/html")) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {
-                        console.log("[ALERT] IP: " + IP + " - Client did not reach the anti bot endpoint!");
+                        console.info(IP + " - Client did not reach the anti bot endpoint!");
                         addFailedCounter(IP);
                     }, timeoutLoadEndpoint);
                 else if (timeoutObject[IP]._called == false &&
                     timeoutObject[IP]._idleTimeout != -1) {
-                    console.log("[ALERT] IP: " + IP + " - Bot behavior detected : loading of a new HTML page before reaching the anti bot endpoint!");
+                    console.info(IP + " - Bot behavior detected : loading of a new HTML page before reaching the anti bot endpoint!");
                     timeoutObject[IP].refresh();
                     addFailedCounter(IP);
                 }
