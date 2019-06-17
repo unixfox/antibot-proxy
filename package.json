@@ -19,7 +19,7 @@
   "homepage": "https://github.com/unixfox/antibot-proxy#readme",
   "dependencies": {
     "better-logging": "^3.4.0",
-    "express": "^4.17.0",
+    "express": "^4.17.1",
     "http-proxy-middleware": "^0.19.1"
   }
 }
