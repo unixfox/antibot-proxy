@@ -7,12 +7,11 @@ require('better-logging')(console);
 let timeoutObject = new Object();
 let failedCounter = new Object();
 
-const targetToProxy = (process.env.TARGET || '127.0.0.1:8888');
-const countBeforeBan = ((process.env.MAX_RETRY - 1) || 5);
-const jailPath = (process.env.JAIL_PATH || '/tmp');
-const timeoutLoadEndpoint = (parseInt(process.env.TIMEOUT_LOAD) || 120000);
-const whitelist = (process.env.WHITELIST || '127.0.0.1');
-const endpointName = (process.env.ENDPOINT_NAME || 'searx.css');
+const targetToProxy = process.env.TARGET;
+const countBeforeBan = process.env.MAX_RETRY - 1;
+const jailPath = process.env.JAIL_PATH;
+const timeoutLoadEndpoint = parseInt(process.env.TIMEOUT_LOAD);
+const whitelist = process.env.WHITELIST;
 
 function addFailedCounter(IP) {
     if (!failedCounter[IP])
@@ -33,7 +32,7 @@ const options = proxy({
     onProxyRes(proxyRes, req, res) {
         let IP = req.headers["x-real-ip"];
         if (proxyRes.headers['content-type'] && !whitelist.includes(IP)
-            && ((req.method == "GET" && Object.keys(req.query).length !== 0) || req.method == "POST"))
+            && ((req.method == "GET" && Object.keys(req.query).length != 0) || req.method == "POST"))
             if (proxyRes.headers['content-type'].includes("text/html")) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {
@@ -51,7 +50,7 @@ const options = proxy({
     logLevel: 'silent'
 });
 
-app.get("/" + endpointName, function (req, res) {
+app.get("/" + process.env.ENDPOINT_NAME, function (req, res) {
     clearTimeout(timeoutObject[req.headers["x-real-ip"]]);
     res.setHeader('Content-Type', 'text/css');
     res.end();
@@ -59,4 +58,4 @@ app.get("/" + endpointName, function (req, res) {
 
 app.all('*', options);
 
-app.listen((process.env.PORT || 3000));
+app.listen(3000);
