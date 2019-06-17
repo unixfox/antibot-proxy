@@ -32,7 +32,7 @@ const options = proxy({
     onProxyRes(proxyRes, req, res) {
         let IP = req.headers["x-real-ip"];
         if (proxyRes.headers['content-type'] && !whitelist.includes(IP)
-            && ((req.method == "GET" && Object.keys(req.query).length != 0) || req.method == "POST"))
+            && ((req.method == "GET" && Object.keys(req.query).length > 0) || req.method == "POST"))
             if (proxyRes.headers['content-type'].includes("text/html")) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {
