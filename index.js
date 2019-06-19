@@ -33,7 +33,7 @@ const options = proxy({
         let IP = req.headers["x-real-ip"];
         if (proxyRes.headers['content-type'] && !whitelist.includes(IP)
             && ((req.method == "GET" && Object.keys(req.query).length > 0) || req.method == "POST"))
-            if (proxyRes.headers['content-type'].includes("text/html")) {
+            if (proxyRes.headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {
                         console.info(IP + " - Client did not reach the anti bot endpoint!");
