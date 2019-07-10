@@ -4,7 +4,7 @@ const fs = require('fs');
 const app = express();
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
-const net = require('net');
+const dotenv = require('dotenv');
 require('better-logging')(console, {
     format: ctx => `${ctx.date} ${ctx.time24} ${ctx.type} ${ctx.msg}`
 });
