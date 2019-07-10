@@ -22,7 +22,6 @@ function checkFileExist(path, exit) {
 }
 
 checkFileExist("config.toml", true);
-checkFileExist("views/bot.pug", true);
 const configFile = TOML.parse(fs.readFileSync('./config.toml'));
 
 let timeoutObject = new Object();
@@ -31,19 +30,29 @@ let failedCounter = new Object();
 function addFailedCounter(IP) {
     if (!failedCounter[IP])
         failedCounter[IP] = 1;
-    else if (failedCounter[IP] >= (configFile.MAX_RETRY -1)) {
+    else if (failedCounter[IP] >= (configFile.MAX_RETRY - 1)) {
         fs.closeSync(fs.openSync(configFile.JAIL_PATH + "/" + IP, 'w'));
         clearTimeout(timeoutObject[IP]);
         delete failedCounter[IP];
         delete timeoutObject[IP];
         console.warn(IP + " - Bot detected: adding to the jail list!");
     }
-    else if (failedCounter[IP] < (configFile.MAX_RETRY -1))
+    else if (failedCounter[IP] < (configFile.MAX_RETRY - 1))
         failedCounter[IP] += 1;
 }
 
+function whitelistPageChecker(fullURL, reqMethod) {
+    let matching = false;
+    for (const regex of configFile["WHITELIST_PAGES"][reqMethod]) {
+        if (new RegExp(regex).test(fullURL)) {
+            matching = true;
+            break;
+        }
+    }
+    return (matching);
+}
+
 app.use(cookieParser());
-app.set('view engine', 'pug');
 
 app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
@@ -56,10 +65,10 @@ app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
 app.all("*", function (userReq, userRes, next) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
-    if (userReq.headers['user-agent'].toLowerCase().includes("bot") || checkFileExist(configFile.JAIL_PATH + "/" + IP, false))
-        userRes.render('bot', { website: configFile.WEBSITE_NAME });
+    if (userReq.method != "GET" && userReq.method != "POST")
+        userRes.end();
     else if ((userReq.cookies && userReq.cookies[configFile.COOKIE_NAME] === secretCookie)
-        || configFile.WHITELIST.indexOf(IP) > -1 || configFile.WHITELIST_PAGES.indexOf(userReq.path) > -1)
+        || configFile.WHITELIST.indexOf(IP) > -1 || whitelistPageChecker(userReq.url, userReq.method))
         next();
     else {
         userRes.cookie(configFile.COOKIE_NAME, secretCookie);
@@ -82,7 +91,8 @@ app.all('*', proxy(configFile.TARGET, {
     },
     userResHeaderDecorator(headers, userReq, userRes, proxyReq, proxyRes) {
         const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
-        if (headers['content-type'] && configFile.WHITELIST.indexOf(IP) == -1 && (userReq.method == "GET" || userReq.method == "POST")) {
+        if (headers['content-type'] && configFile.WHITELIST.indexOf(IP) == -1 && (userReq.method == "GET" || userReq.method == "POST")
+            && !whitelistPageChecker(userReq.url, userReq.method)) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
                     timeoutObject[IP] = setTimeout(function () {

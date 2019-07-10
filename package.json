@@ -23,7 +23,6 @@
     "better-logging": "^3.4.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
-    "express-http-proxy": "^1.5.1",
-    "pug": "^2.0.4"
+    "express-http-proxy": "^1.5.1"
   }
 }

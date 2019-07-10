@@ -17,7 +17,6 @@ The algorithm is based on the fact that every browser will accept cookie and loa
 - `PORT`: The port of which the proxy application will listen to.
 - `TARGET`: The URL of the application to proxy/protect.
 - `TIMEOUT_LOAD`: The time before the program consider that the client failed to reach the CSS file.
-- `WEBSITE_NAME`: The name of your website. This name will only be displayed on the blocked page for bots.
 - `WHITELIST`: The IP that you want to be whitelisted. Separate each IP with a `,`.
 - `WHITELIST_PAGES`: Pages to whitelist from the blocked page for bots.
 
@@ -39,9 +38,6 @@ proxy_set_header X-Real-IP $remote_addr;
 ```caddy
 transparent
 ```
-
-4. (Optional) You may modify the `views/bot.template.pug` file so that search engines (bots) will display the correct informations about your website.
-The documentation about pug is available here: https://pugjs.org/language/attributes.html.
 
 # How to configure the ipfilter plugin to handle the banned IPs?
 
