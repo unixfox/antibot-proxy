@@ -88,3 +88,6 @@ typings/
 .dynamodb/
 
 package-lock.json
+
+.env
+views/bot.pug
