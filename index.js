@@ -86,7 +86,7 @@ app.all('*', proxy(targetToProxy, {
             return req.method == 'GET';
     },
     userResHeaderDecorator(headers, userReq, userRes, proxyReq, proxyRes) {
-        const IP = headers["x-real-ip"];
+        const IP = userReq.headers["x-real-ip"];
         if (headers['content-type'] && !whitelist.includes(IP) && (userReq.method == "GET" || userReq.method == "POST")) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
