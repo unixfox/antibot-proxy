@@ -4,15 +4,10 @@ const fs = require('fs');
 const app = express();
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv');
 require('better-logging')(console, {
     format: ctx => `${ctx.date} ${ctx.time24} ${ctx.type} ${ctx.msg}`
 });
-const result = dotenv.config()
-
-if (result.error) {
-    throw result.error;
-}
+require('dotenv').config();
 
 let timeoutObject = new Object();
 let failedCounter = new Object();
@@ -50,13 +45,14 @@ function checkFileExist(path, exit) {
             return (false);
 }
 
+checkFileExist(".env", true);
 checkFileExist("views/bot.pug", true);
 
 app.use(cookieParser());
 app.set('view engine', 'pug');
 
 app.get("/" + endpointName, function (userReq, userRes) {
-    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
+    const IP = userReq.headers["x-real-ip"];
     clearTimeout(timeoutObject[IP]);
     userRes.setHeader('Content-Type', 'text/css');
     userRes.setHeader('Cache-Control', 'no-store');
@@ -64,7 +60,7 @@ app.get("/" + endpointName, function (userReq, userRes) {
 });
 
 app.all("*", function (userReq, userRes, next) {
-    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
+    const IP = userReq.headers["x-real-ip"];
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
     if (userReq.headers['user-agent'].toLowerCase().includes("bot") || checkFileExist(jailPath + "/" + IP, false))
         userRes.render('bot', { website: process.env.WEBSITE_NAME });
@@ -90,7 +86,7 @@ app.all('*', proxy(targetToProxy, {
             return req.method == 'GET';
     },
     userResHeaderDecorator(headers, userReq, userRes, proxyReq, proxyRes) {
-        const IP = (headers["x-real-ip"] || userReq.connection.remoteAddress);
+        const IP = headers["x-real-ip"];
         if (headers['content-type'] && !whitelist.includes(IP) && (userReq.method == "GET" || userReq.method == "POST")) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
