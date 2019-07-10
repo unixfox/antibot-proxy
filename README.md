@@ -7,9 +7,9 @@ The algorithm is based on the fact that every browser will accept cookie and loa
 
 # How to make it work?
 
-1. Copy the `example.env` to `.env` and the `views/bot.template.pug` to `views/bot.pug`.
+1. Copy the `example.toml` to `config.toml` and the `views/bot.template.pug` to `views/bot.pug`.
 
-2. Modify the settings inside the `.env`. You don't need to modify every setting, just change the one that you want to be changed. Here is the reference for each setting:
+2. Modify the settings inside the `config.toml`. You don't need to modify every setting, just change the one that you want to be changed. Here is the reference for each setting:
 - `COOKIE_NAME`: The name of the cookie that will be used for checking if the client can handle the cookie.
 - `ENDPOINT_NAME`: The name of the CSS file that will be used for checking if the client can process the HTML code.
 - `JAIL_PATH`: The path to the directory where the banned IP will be stored. Optionally to be used with the [ipfilter](https://caddyserver.com/docs/http.ipfilter) plugin of Caddy.
@@ -52,4 +52,4 @@ ipfilter / {
 		prefix_dir JAIL_PATH
 }
 ````
-and change `JAIL_PATH` with the value of `JAIL_PATH` that you have previously defined in the `.env` file.
+and change `JAIL_PATH` with the value of `JAIL_PATH` that you have previously defined in the `config.toml` file.

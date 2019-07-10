@@ -89,5 +89,5 @@ typings/
 
 package-lock.json
 
-.env
+config.toml
 views/bot.pug
