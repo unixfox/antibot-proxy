@@ -8,7 +8,11 @@ const net = require('net');
 require('better-logging')(console, {
     format: ctx => `${ctx.date} ${ctx.time24} ${ctx.type} ${ctx.msg}`
 });
-require('dotenv').config();
+const result = dotenv.config()
+
+if (result.error) {
+    throw result.error;
+}
 
 let timeoutObject = new Object();
 let failedCounter = new Object();
@@ -46,7 +50,6 @@ function checkFileExist(path, exit) {
             return (false);
 }
 
-checkFileExist(".env", true);
 checkFileExist("views/bot.pug", true);
 
 app.use(cookieParser());
