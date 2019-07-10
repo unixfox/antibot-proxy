@@ -19,6 +19,7 @@ The algorithm is based on the fact that every browser will accept cookie and loa
 - `TIMEOUT_LOAD`: The time before the program consider that the client failed to reach the CSS file.
 - `WEBSITE_NAME`: The name of your website. This name will only be displayed on the blocked page for bots.
 - `WHITELIST`: The IP that you want to be whitelisted. Separate each IP with a `,`.
+- `WHITELIST_PAGES`: Pages to whitelist from the blocked page for bots.
 
 3. On your main webserver (nginx, apache, caddy,...) you need to pass the IP address of the client to the application (with the `X-Real-IP` header). Here is how to do it on:
 - Apache:

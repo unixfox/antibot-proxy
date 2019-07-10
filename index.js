@@ -18,6 +18,7 @@ const jailPath = process.env.JAIL_PATH;
 const timeoutLoadEndpoint = parseInt(process.env.TIMEOUT_LOAD);
 const whitelist = process.env.WHITELIST;
 const endpointName = process.env.ENDPOINT_NAME;
+const whitelistPages = process.env.WHITELIST_PAGES;
 
 function addFailedCounter(IP) {
     if (!failedCounter[IP])
@@ -52,7 +53,7 @@ app.use(cookieParser());
 app.set('view engine', 'pug');
 
 app.get("/" + endpointName, function (userReq, userRes) {
-    const IP = userReq.headers["x-real-ip"];
+    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     clearTimeout(timeoutObject[IP]);
     userRes.setHeader('Content-Type', 'text/css');
     userRes.setHeader('Cache-Control', 'no-store');
@@ -60,11 +61,12 @@ app.get("/" + endpointName, function (userReq, userRes) {
 });
 
 app.all("*", function (userReq, userRes, next) {
-    const IP = userReq.headers["x-real-ip"];
+    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
     if (userReq.headers['user-agent'].toLowerCase().includes("bot") || checkFileExist(jailPath + "/" + IP, false))
         userRes.render('bot', { website: process.env.WEBSITE_NAME });
-    else if ((userReq.cookies && userReq.cookies[process.env.COOKIE_NAME] === secretCookie) || whitelist.includes(IP))
+    else if ((userReq.cookies && userReq.cookies[process.env.COOKIE_NAME] === secretCookie)
+        || whitelist.includes(IP) || whitelistPages.includes(userReq.path))
         next();
     else {
         userRes.cookie(process.env.COOKIE_NAME, secretCookie);
@@ -86,7 +88,7 @@ app.all('*', proxy(targetToProxy, {
             return req.method == 'GET';
     },
     userResHeaderDecorator(headers, userReq, userRes, proxyReq, proxyRes) {
-        const IP = userReq.headers["x-real-ip"];
+        const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
         if (headers['content-type'] && !whitelist.includes(IP) && (userReq.method == "GET" || userReq.method == "POST")) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called)
