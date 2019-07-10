@@ -39,7 +39,7 @@ function checkFileExist(path, exit) {
         return (true);
     else
         if (exit) {
-            console.error("The file " + file + " doesn't exist, can't continue. Please check the documentation for further details.");
+            console.error("The file " + path + " doesn't exist, can't continue. Please check the documentation for further details.");
             process.exit(1);
         }
         else
