@@ -96,11 +96,12 @@ app.all('*', proxy(configFile.TARGET, {
         if (headers['content-type'] && configFile.WHITELIST.indexOf(IP) == -1 && (userReq.method == "GET" || userReq.method == "POST")
             && !whitelistPageChecker(userReq.url, userReq.method)) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
-                if (!timeoutObject[IP] || timeoutObject[IP]._called)
+                if (!timeoutObject[IP] || timeoutObject[IP]._called) {
                     timeoutObject[IP] = setTimeout(function () {
                         console.info(IP + " - Client did not reach the anti bot endpoint!");
                         addFailedCounter(IP);
                     }, configFile.TIMEOUT_LOAD * 1000);
+                }
                 else if (timeoutObject[IP]._called == false &&
                     timeoutObject[IP]._idleTimeout != -1) {
                     console.info(IP + " - Bot behavior detected : loading of a new HTML page before reaching the anti bot endpoint!");
@@ -113,7 +114,9 @@ app.all('*', proxy(configFile.TARGET, {
     },
     userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
         if (proxyRes.headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
-            const data = proxyResData.toString('utf8').replace('<head>', '<head><link rel="stylesheet" type="text/css" href="/' + configFile.ENDPOINT_NAME + '">');
+            const data = proxyResData.toString('utf8').replace(new RegExp(configFile.HTML_TAG_REPLACE, "g"), function (match) {
+                return (match + '<link rel="stylesheet" type="text/css" href="/' + configFile.ENDPOINT_NAME + '">')
+            });
             return (data);
         }
         else
