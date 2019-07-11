@@ -65,8 +65,10 @@ app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
 app.all("*", function (userReq, userRes, next) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
-    if (userReq.method != "GET" && userReq.method != "POST")
+    if ((userReq.method != "GET" && userReq.method != "POST") || checkFileExist(configFile.JAIL_PATH + "/" + IP, false)) {
+        userRes.status(403);
         userRes.end();
+    }
     else if ((userReq.cookies && userReq.cookies[configFile.COOKIE_NAME] === secretCookie)
         || configFile.WHITELIST.indexOf(IP) > -1 || whitelistPageChecker(userReq.url, userReq.method))
         next();
