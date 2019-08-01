@@ -1,6 +1,6 @@
 COOKIE_NAME = 'searx'
 ENDPOINT_NAME = 'searx.css'
-HTML_TAG_REPLACE = '(<div id="pagination">)|(<body>)'
+HTML_TAG_REPLACE = '(<div id="pagination">)|(<head>)'
 JAIL_PATH = '/tmp'
 MAX_RETRY = 5
 PORT = 3000
