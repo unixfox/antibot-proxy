@@ -103,7 +103,11 @@ app.all('*', proxy(configFile.TARGET, {
                     timeoutObject[IP] = setTimeout(function () {
                         console.info(IP + " - Client did not reach the anti bot endpoint!");
                         addFailedCounter(IP);
+                        if (timeoutObject[IP]) {
+                            timeoutObject[IP]._called = true;
+                        }
                     }, configFile.TIMEOUT_LOAD * 1000);
+                    timeoutObject[IP]._called = false;
                 }
                 else if (timeoutObject[IP]._called == false &&
                     timeoutObject[IP]._idleTimeout != -1) {
