@@ -66,16 +66,7 @@ app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
 app.all("*", function (userReq, userRes, next) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
-    const userAgent = userAgentExpress.parse(userReq.headers['user-agent']);
-    if (userAgent.isBot || userAgent.isCurl || (userAgent.isChrome && !userReq.rawHeaders.includes("Accept-Language"))) {
-        userRes.status(403);
-        userRes.end();
-    }
-    else if ((userReq.method != "GET" && userReq.method != "POST") || checkFileExist(configFile.JAIL_PATH + "/" + IP, false)) {
-        userRes.status(403);
-        userRes.end();
-    }
-    else if ((userReq.cookies && userReq.cookies[configFile.COOKIE_NAME] === secretCookie)
+    if ((userReq.cookies && userReq.cookies[configFile.COOKIE_NAME] === secretCookie)
         || configFile.WHITELIST.indexOf(IP) > -1 || whitelistPageChecker(userReq.url, userReq.method))
         next();
     else {
@@ -89,18 +80,24 @@ app.all('*', proxy(configFile.TARGET, {
     timeout: 10000,
     limit: '50kb',
     preserveHostHdr: true,
-    filter: function (req, res) {
-        if (req.method == 'GET')
-            return req.method == 'GET';
-        else if (req.method == 'POST')
-            return req.method == 'POST';
+    filter: function (userReq, userRes) {
+        const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
+        const userAgent = userAgentExpress.parse(userReq.headers['user-agent']);
+        if ((userAgent.isBot || userAgent.isCurl || (userAgent.isChrome && !userReq.rawHeaders.includes("Accept-Language")))
+            && !whitelistPageChecker(userReq.url, userReq.method) && configFile.WHITELIST.indexOf(IP) == -1)
+            return false;
+        else if (checkFileExist(configFile.JAIL_PATH + "/" + IP, false))
+            return false;
+        else if (userReq.method == 'GET')
+            return true;
+        else if (userReq.method == 'POST')
+            return true;
         else
-            return req.method == 'GET';
+            return false;
     },
     userResHeaderDecorator(headers, userReq, userRes, proxyReq, proxyRes) {
         const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
-        if (headers['content-type'] && configFile.WHITELIST.indexOf(IP) == -1 && (userReq.method == "GET" || userReq.method == "POST")
-            && !whitelistPageChecker(userReq.url, userReq.method)) {
+        if (headers['content-type'] && configFile.WHITELIST.indexOf(IP) == -1 && !whitelistPageChecker(userReq.url, userReq.method)) {
             if (headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
                 if (!timeoutObject[IP] || timeoutObject[IP]._called) {
                     timeoutObject[IP] = setTimeout(function () {
@@ -129,6 +126,11 @@ app.all('*', proxy(configFile.TARGET, {
             return (proxyResData);
     }
 }));
+
+app.all("*", function (userReq, userRes) {
+    userRes.status(403);
+    userRes.end();
+});
 
 app.listen(configFile.PORT, () => {
     console.log("Listening on port " + configFile.PORT);
