@@ -1,5 +1,6 @@
 const proxy = require('express-http-proxy');
 const express = require('express');
+const userAgentExpress = require('express-useragent');
 const fs = require('fs');
 const app = express();
 const crypto = require('crypto');
@@ -65,8 +66,8 @@ app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
 app.all("*", function (userReq, userRes, next) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
-    if (userReq.headers["user-agent"] == "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3803.0 Safari/537.36"
-        && !userReq.rawHeaders.includes("Accept-Language")) {
+    const userAgent = userAgentExpress.parse(userReq.headers['user-agent']);
+    if (userAgent.isBot || userAgent.isCurl || (userAgent.isChrome && !userReq.rawHeaders.includes("Accept-Language"))) {
         userRes.status(403);
         userRes.end();
     }
