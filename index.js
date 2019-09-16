@@ -55,25 +55,14 @@ function whitelistPageChecker(fullURL, reqMethod) {
 
 app.use(cookieParser());
 
-app.get("/" + configFile.ENDPOINT_NAME, function (userReq, userRes) {
-    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
-    clearTimeout(timeoutObject[IP]);
-    userRes.setHeader('Content-Type', 'text/css');
-    userRes.setHeader('Cache-Control', 'no-store');
-    userRes.end();
-});
-
-app.all("*", function (userReq, userRes, next) {
+app.get("/*.css$/", function (userReq, userRes) {
     const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
     const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
-    if ((userReq.cookies && userReq.cookies[configFile.COOKIE_NAME] === secretCookie)
-        || configFile.WHITELIST.indexOf(IP) > -1 || whitelistPageChecker(userReq.url, userReq.method))
-        next();
-    else {
-        userRes.cookie(configFile.COOKIE_NAME, secretCookie);
-        userRes.redirect(307, userReq.url);
-        userRes.end();
-    }
+    userRes.setHeader('Content-Type', 'text/css');
+    userRes.setHeader('Cache-Control', 'no-store');
+    if (userReq.path.substr(+1) === secretCookie + ".css")
+        clearTimeout(timeoutObject[IP]);
+    userRes.end();
 });
 
 app.all('*', proxy(configFile.TARGET, {
@@ -83,10 +72,16 @@ app.all('*', proxy(configFile.TARGET, {
     filter: function (userReq, userRes) {
         const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
         const userAgent = userAgentExpress.parse(userReq.headers['user-agent']);
-        if ((userAgent.isBot || userAgent.isCurl || (userAgent.isChrome && !userReq.rawHeaders.includes("Accept-Language")))
-            && !whitelistPageChecker(userReq.url, userReq.method) && configFile.WHITELIST.indexOf(IP) == -1)
+        const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
+        if (whitelistPageChecker(userReq.url, userReq.method))
+            return true;
+        else if (configFile.WHITELIST.indexOf(IP) > -1)
+            return true;
+        else if ((userAgent.isChrome && !userReq.rawHeaders.includes("Accept-Language")) || userAgent.isBot || userAgent.isCurl)
             return false;
         else if (checkFileExist(configFile.JAIL_PATH + "/" + IP, false))
+            return false;
+        else if (!userReq.cookies || userReq.cookies[configFile.COOKIE_NAME] !== secretCookie)
             return false;
         else if (userReq.method == 'GET')
             return true;
@@ -120,9 +115,11 @@ app.all('*', proxy(configFile.TARGET, {
         return headers;
     },
     userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
+        const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
+        const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
         if (proxyRes.headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
             const data = proxyResData.toString('utf8').replace(new RegExp(configFile.HTML_TAG_REPLACE, "g"), function (match) {
-                return (match + '<link rel="stylesheet" type="text/css" href="/' + configFile.ENDPOINT_NAME + '">')
+                return (match + '<link rel="stylesheet" type="text/css" href="/' + secretCookie + '.css">');
             });
             return (data);
         }
@@ -132,8 +129,17 @@ app.all('*', proxy(configFile.TARGET, {
 }));
 
 app.all("*", function (userReq, userRes) {
-    userRes.status(403);
-    userRes.end();
+    const IP = (userReq.headers["x-real-ip"] || userReq.connection.remoteAddress);
+    const secretCookie = crypto.createHash('md5').update(IP).digest('hex');
+    if (!userReq.cookies || userReq.cookies[configFile.COOKIE_NAME] !== secretCookie) {
+        userRes.cookie(configFile.COOKIE_NAME, secretCookie);
+        userRes.redirect(307, userReq.url);
+        userRes.end();
+    }
+    else {
+        userRes.status(403);
+        userRes.end();
+    }
 });
 
 app.listen(configFile.PORT, () => {

@@ -1,4 +1,4 @@
-COOKIE_NAME = 'searx'
+COOKIE_NAME = 'vf'
 ENDPOINT_NAME = 'searx.css'
 HTML_TAG_REPLACE = '(<div id="pagination">)|(<head>)'
 JAIL_PATH = '/tmp'
@@ -9,5 +9,5 @@ TIMEOUT_LOAD = 120
 WHITELIST = ['8.8.8.8', '1.1.1.1']
 
 [WHITELIST_PAGES]
-GET = ['^/$', '^/autocompleter(.*)$', '^/favicon.ico$', '^/about$', '^/robots.txt$', '^/opensearch.xml$']
+GET = ['^/$', '^/autocompleter(.*)$', '^/favicon.ico$', '^/about$', '^/robots.txt$', '^/opensearch.xml$', '^/image_proxy(.*)$']
 POST = ['^/preferences$']
