@@ -118,7 +118,7 @@ app.all('*', proxy(configFile.TARGET, {
         }
         return headers;
     },
-    userResDecorator: function (proxyRes, proxyResData,Removing network userReq, userRes) {
+    userResDecorator: function (proxyRes, proxyResData, userReq, userRes) {
         if (proxyRes.headers['content-type'].includes("text/html") && (proxyRes.statusCode >= 200 && proxyRes.statusCode < 400)) {
             const data = proxyResData.toString('utf8').replace(new RegExp(configFile.HTML_TAG_REPLACE, "g"), function (match) {
                 return (match + '<link rel="stylesheet" type="text/css" href="/' + configFile.ENDPOINT_NAME + '">')
