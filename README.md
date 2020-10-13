@@ -4,7 +4,7 @@
 
 :warning: This program is still experimental so there are probably some bugs and vulnerabilities in the bot detection system. :warning:
 
-The algorithm is based on the fact that every browser will accept cookie and load the external CSS that you included in your HTML page so in case of a stupid/basic bot it won't simply process the cookie or/and load that external CSS file because it does not process the HTML code.
+The algorithm is based on the fact that every browser will accept cookie and load the external CSS that you included in your HTML page so in case of a basic bot it won't simply process the cookie or/and load that external CSS file because it does not process the HTML code.
 
 # How to make it work? (minimalistic configuration)
 
